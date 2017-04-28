@@ -1,0 +1,56 @@
+version: "2"
+networks:
+  working:
+    external: true
+services:
+  inbox:
+    build: ./inbox
+    volumes:
+      - ./inbox:/inbox
+    working_dir: /inbox
+    command: node run.js
+    networks:
+      - working
+    ports:
+      - 8000:8080
+    depends_on:
+      - minio
+  unzipper:
+    build: ./unzipper
+    volumes:
+      - ./unzipper:/work
+    working_dir: /work
+    environment:
+      - SOURCE_BUCKET=inbox-data
+      - MINIO_BUCKET=working
+    command: node run.js
+    networks:
+      - working
+    depends_on:
+      - minio
+  mbox:
+    build: ./mbox
+    volumes:
+      - ./mbox:/work
+    working_dir: /work
+    environment:
+      - SOURCE_BUCKET=inbox-data
+      - MINIO_BUCKET=working
+    command: node run.js
+    networks:
+      - working
+    depends_on:
+      - minio
+  minio:
+    image: minio/minio
+    volumes:
+      - ./data/minio:/export
+    command: server /export
+    ports:
+      - 9000:9000
+    environment:
+      - MINIO_ACCESS_KEY=minio-access-key
+      - MINIO_SECRET_KEY=minio-SECRET-key
+    networks:
+      - working
+

@@ -1,0 +1,119 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <link rel="stylesheet" href="./css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" />
+  <link rel="stylesheet" href="./css/bootstrap-theme.min.css" integrity="sha256-ZT4HPpdCOt2lvDkXokHuhJfdOKSPFLzeAJik5U/Q+l4=" />
+  <script type="text/javascript" src="./js/jquery.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="></script>
+  <script src="./js/bootstrap.js" integrity="sha256-Cr6N6zNN4bp0OwTQOZ6Z66M2r+2dpy/EwKMCyZ+SOMg="></script>
+  <title>Inbox</title>
+  <meta name="description" content="DFS Inbox">
+  <meta name="author" content="TS">
+</head>
+<body>
+  <form class="form form-horizontal" action="./uploads" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+      <label class="control-label col-xs-3">Organization</label>
+      <div class="col-xs-5">
+        <div class="radio">
+          <label>
+            <input type="radio" name="org" id="org" value="DFS" required>
+            DFS - Digital Forensic Services
+          </label>
+        </div>
+        <div class="radio">
+          <label>
+            <input type="radio" name="org" id="org" value="FSL" required>
+            FSL - Forensic Science Laboratory
+          </label>
+        </div>
+        <div class="radio">
+          <label>
+            <input type="radio" name="org" id="org" value="TFSD" required>
+            TFSD - Tactical and Firearms Support Division
+          </label>
+        </div>
+      </div>
+      <div class="col-xs-4 help-block">
+        What organization is this intended for?
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">
+        Recipient
+      </label>
+      <div class="col-xs-5">
+        <input type="text" class="form-control" name="recipient" placeholder="enter name, seid, or email if known..." />
+      </div>
+      <div class="col-xs-4 help-block">
+        If you are unsure, leave blank
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">Category</label>
+      <div class="col-xs-5">
+        <select class="form-control" name="category" required>
+          <option disabled selected value>-- select an option --</option>
+          <option value="evidence">Evidence</option>
+          <option value="working">File Transfer</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="col-xs-4 help-block">
+        The category will determine what type of handling the attachments receive
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">
+        Reference Number
+      </label>
+      <div class="col-xs-5">
+        <input type="text" class="form-control" name="reference_id" placeholder="case number, reference id, etc..." required />
+      </div>
+      <div class="col-xs-4 help-block">
+        If evidence, this should be the full case number
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">
+        Attach Files
+      </label>
+      <div class="col-xs-5">
+        <input type="file" class="form-control" name="file" multiple>
+      </div>
+      <div class="col-xs-4 help-block">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3">
+        Additional Info
+      </label>
+      <div class="col-xs-5">
+        <textarea name="message" class="form-control" placeholder="enter any additional information needed..." rows="4"></textarea>
+      </div>
+      <div class="col-xs-4 help-block">
+        Any message, note, or handling instructions you wish to provide
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="control-label col-xs-3"></label>
+      <div class="col-xs-5">
+        <button type="submit" class="btn btn-primary">Start Upload</button>
+        <button type="button" onclick="GoParamUrl()" class="btn btn-default">Go to sharable link</button>
+      </div>
+      <div class="col-xs-4 help-block"></div>
+    </div>
+  </form>
+
+  <script type="text/javascript" src="./js/main.js"></script>
+
+</body>
+</html>
