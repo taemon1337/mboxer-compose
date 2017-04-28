@@ -34,13 +34,15 @@ services:
       - ./mbox:/work
     working_dir: /work
     environment:
-      - SOURCE_BUCKET=inbox-data
-      - MINIO_BUCKET=working
+      - INBOX_BUCKET=inbox-data
+      - SOURCE_BUCKET=working
+      - MINIO_BUCKET=emails
     command: node run.js
     networks:
       - working
     depends_on:
       - minio
+      - mongo
   minio:
     image: minio/minio
     volumes:
@@ -53,4 +55,9 @@ services:
       - MINIO_SECRET_KEY=minio-SECRET-key
     networks:
       - working
-
+  mongo:
+    image: mongo:latest
+    volumes:
+      - ./data/mongo:/data/db
+    networks:
+      - working

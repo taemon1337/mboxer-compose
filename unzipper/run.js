@@ -5,7 +5,11 @@ var fs = require('fs')
   , temp = require('temp')
   , path = require('path')
   , Minio = require('minio')
-  , SOURCE_BUCKET = process.env.SOURCE_BUCKET || 'inbox-data'
+  , INBOX_BUCKET = process.env.INBOX_BUCKET || 'inbox-data'
+  , INBOX_REGION = process.env.INBOX_REGION || 'us-east-1'
+  , INBOX_PREFIX = process.env.INBOX_PREFIX || ''
+  , INBOX_SUFFIX = process.env.INBOX_SUFFIX || '.zip'
+  , SOURCE_BUCKET = process.env.SOURCE_BUCKET || 'working'
   , SOURCE_REGION = process.env.SOURCE_REGION || 'us-east-1'
   , SOURCE_PREFIX = process.env.SOURCE_PREFIX || ''
   , SOURCE_SUFFIX = process.env.SOURCE_SUFFIX || '.zip'
@@ -68,9 +72,9 @@ function mkdirp (dir, cb) {
   });
 }
 
-function download (name) {
+function download (bucket, name) {
   return new Promise(function (resolve, reject) {
-    minio.getObject(SOURCE_BUCKET, name, function (err, datastream) {
+    minio.getObject(bucket, name, function (err, datastream) {
       if (err) {
         winston.warn('Error getting object ' + name, err)
         reject(err);
@@ -142,13 +146,26 @@ function unzip (zipPath) {
 function start() {
   winston.info("starting unzipper processor...");
 
-  var listener = minio.listenBucketNotification(SOURCE_BUCKET, SOURCE_PREFIX, SOURCE_SUFFIX, MINIO_CREATE)
+  var inbox_listener = minio.listenBucketNotification(INBOX_BUCKET, INBOX_PREFIX, INBOX_SUFFIX, MINIO_CREATE)
+  var source_listener = minio.listenBucketNotification(SOURCE_BUCKET, SOURCE_PREFIX, SOURCE_SUFFIX, MINIO_CREATE)
 
-  listener.on('notification', function (record) {
+  inbox_listener.on('notification', function (record) {
     winston.info('FOUND NEW ZIP FILE', record)
     var name = decodeUri(record.s3.object.key);
 
-    download(name).then(function (info) {
+    download(INBOX_BUCKET, name).then(function (info) {
+      console.log('DOWNLOAD INFO', info);
+      unzip(info);
+    }).catch(function (err) {
+      winston.error('Error downloading ', err);
+    });
+  });
+
+  source_listener.on('notification', function (record) {
+    winston.info('FOUND NEW ZIP FILE', record)
+    var name = decodeUri(record.s3.object.key);
+
+    download(SOURCE_BUCKET, name).then(function (info) {
       console.log('DOWNLOAD INFO', info);
       unzip(info);
     }).catch(function (err) {
@@ -158,15 +175,18 @@ function start() {
 
   process.on("SIGINT", function() {
     winston.info("stopping unzipper processor...");
-    listener.stop();
+    inbox_listener.stop();
+    source_listener.stop();
     process.exit();
   })
 }
 
 setTimeout(function() {
-  makeBucket(minio, SOURCE_BUCKET, SOURCE_REGION, function () {
-    makeBucket(minio, MINIO_BUCKET, MINIO_REGION, function () {
-      start();
+  makeBucket(minio, INBOX_BUCKET, SOURCE_REGION, function () {
+    makeBucket(minio, SOURCE_BUCKET, SOURCE_REGION, function () {
+      makeBucket(minio, MINIO_BUCKET, MINIO_REGION, function () {
+        start();
+      });
     });
   });
 }, 5000);
