@@ -15,6 +15,17 @@ services:
       - 8000:8080
     depends_on:
       - minio
+  api:
+    build: ./api
+    volumes:
+      - ./api:/work
+    working_dir: /work
+    ports:
+      - "8080:8080"
+    networks:
+      - working
+    depends_on:
+      - mongo
   unzipper:
     build: ./unzipper
     volumes:

@@ -105,8 +105,8 @@ function saveToMinio(name, mail) {
 }
 
 function saveMail(mail) {
-  store.create('email', mail).then(function (email) {
-    winston.info('CREATED: ', email);
+  store.create('emails', mail).then(function (email) {
+    winston.info('CREATED: ', email._id);
   }).catch(function (err) {
     winston.error('Error creating email', err);
   });
